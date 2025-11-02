@@ -1,89 +1,95 @@
-// Assignment 4 - Problem 1: Banker's Algorithm
+/*
+4.1 Producer-Consumer Problem: 
+The producer is Mr. Simpson whose job is to bake Pizza and consumer is Joey Tribbiani 
+who consumes Pizza at the same time. Both of them share common Pizza counter to interact 
+with each other. The problem is to make sure that the Simpson won't try to add more pizza 
+on Pizza-counter if it's full. He needs to wait until Joey consumes Pizza. 
+Similarly, Joey can't consume pizza from an empty counter. He needs to wait until 
+Mr. Simpson adds Pizza on counter. 
+Implement a solution in C using POSIX threads that coordinates the activities of the 
+producer Simpson and the consumer Joey with counting semaphores and mutex.
+*/
+
 #include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <semaphore.h>
+#include <unistd.h>
+
+#define BUFFER_SIZE 5
+#define NUM_PIZZAS 10
+
+int buffer[BUFFER_SIZE];
+int in = 0, out = 0;
+
+sem_t empty;  // Count of empty slots
+sem_t full;   // Count of full slots
+pthread_mutex_t mutex;
+
+void* simpson(void* arg) {
+    for(int i = 1; i <= NUM_PIZZAS; i++) {
+        sem_wait(&empty);  // Wait for empty slot
+        pthread_mutex_lock(&mutex);
+        
+        // Critical section - Add pizza
+        buffer[in] = i;
+        printf("Mr. Simpson baked Pizza %d at position %d\n", i, in);
+        in = (in + 1) % BUFFER_SIZE;
+        
+        pthread_mutex_unlock(&mutex);
+        sem_post(&full);  // Signal that slot is full
+        
+        sleep(1);  // Simulate baking time
+    }
+    printf("\nMr. Simpson: All pizzas baked!\n");
+    return NULL;
+}
+
+void* joey(void* arg) {
+    for(int i = 1; i <= NUM_PIZZAS; i++) {
+        sem_wait(&full);  // Wait for full slot
+        pthread_mutex_lock(&mutex);
+        
+        // Critical section - Consume pizza
+        int pizza = buffer[out];
+        printf("Joey consumed Pizza %d from position %d\n", pizza, out);
+        out = (out + 1) % BUFFER_SIZE;
+        
+        pthread_mutex_unlock(&mutex);
+        sem_post(&empty);  // Signal that slot is empty
+        
+        sleep(2);  // Simulate eating time
+    }
+    printf("\nJoey: All pizzas consumed!\n");
+    return NULL;
+}
 
 int main() {
-    int n, m, i, j, k;
+    pthread_t producer, consumer;
     
-    printf("Enter number of processes: ");
-    scanf("%d", &n);
+    // Initialize semaphores
+    sem_init(&empty, 0, BUFFER_SIZE);  // Initially all slots are empty
+    sem_init(&full, 0, 0);              // Initially no slots are full
+    pthread_mutex_init(&mutex, NULL);
     
-    printf("Enter number of resources: ");
-    scanf("%d", &m);
+    printf("=== Pizza Counter Simulation ===\n");
+    printf("Buffer Size: %d\n", BUFFER_SIZE);
+    printf("Total Pizzas: %d\n\n", NUM_PIZZAS);
     
-    int alloc[n][m], max[n][m], avail[m], need[n][m];
-    int finish[n], safeSeq[n], work[m];
+    // Create threads
+    pthread_create(&producer, NULL, simpson, NULL);
+    pthread_create(&consumer, NULL, joey, NULL);
     
-    printf("\nEnter Allocation Matrix:\n");
-    for(i = 0; i < n; i++) {
-        for(j = 0; j < m; j++) {
-            scanf("%d", &alloc[i][j]);
-        }
-    }
+    // Wait for threads to finish
+    pthread_join(producer, NULL);
+    pthread_join(consumer, NULL);
     
-    printf("\nEnter Max Matrix:\n");
-    for(i = 0; i < n; i++) {
-        for(j = 0; j < m; j++) {
-            scanf("%d", &max[i][j]);
-        }
-    }
+    // Cleanup
+    sem_destroy(&empty);
+    sem_destroy(&full);
+    pthread_mutex_destroy(&mutex);
     
-    printf("\nEnter Available Resources:\n");
-    for(i = 0; i < m; i++) {
-        scanf("%d", &avail[i]);
-    }
-    
-    // Calculate Need Matrix
-    for(i = 0; i < n; i++) {
-        for(j = 0; j < m; j++) {
-            need[i][j] = max[i][j] - alloc[i][j];
-        }
-    }
-    
-    // Initialize
-    for(i = 0; i < n; i++) {
-        finish[i] = 0;
-    }
-    
-    for(i = 0; i < m; i++) {
-        work[i] = avail[i];
-    }
-    
-    // Find safe sequence
-    int count = 0;
-    while(count < n) {
-        int found = 0;
-        for(i = 0; i < n; i++) {
-            if(finish[i] == 0) {
-                int flag = 1;
-                for(j = 0; j < m; j++) {
-                    if(need[i][j] > work[j]) {
-                        flag = 0;
-                        break;
-                    }
-                }
-                
-                if(flag == 1) {
-                    for(k = 0; k < m; k++) {
-                        work[k] += alloc[i][k];
-                    }
-                    safeSeq[count++] = i;
-                    finish[i] = 1;
-                    found = 1;
-                }
-            }
-        }
-        
-        if(found == 0) {
-            printf("\nSystem is not in safe state!\n");
-            return 0;
-        }
-    }
-    
-    printf("\nSystem is in safe state.\nSafe Sequence: ");
-    for(i = 0; i < n; i++) {
-        printf("P%d ", safeSeq[i]);
-    }
-    printf("\n");
+    printf("\n=== Simulation Complete ===\n");
     
     return 0;
 }
