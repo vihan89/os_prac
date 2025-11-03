@@ -368,6 +368,61 @@ g++ 7_1_receiver.cpp -o receiver
 
 ---
 
+## 📊 Difficulty Levels & Learning Order
+
+### **Recommended Learning Path (Easiest → Hardest):**
+
+#### ⭐ **Level 1: EASIEST** - Start Here!
+**Assignment 3 (CPU Scheduling)**
+- Pure logic, no system calls
+- Just loops and arrays
+- Perfect for beginners
+- **Start with:** `3_1.cpp` (FCFS & SJF)
+
+#### ⭐⭐ **Level 2: VERY EASY**
+**Assignment 6 (Page Replacement)**
+- Arrays and counters
+- No system calls
+- Clear algorithm steps
+- **Try:** `6_1.cpp` (FIFO & LRU)
+
+**Assignment 8 (Disk Scheduling)**
+- Array sorting
+- Simple calculations
+- No system calls
+- **Try:** `8_1.cpp` (C-SCAN & C-LOOK)
+
+#### ⭐⭐⭐ **Level 3: MODERATE**
+**Assignment 5 (Banker's Algorithm)**
+- 2D arrays
+- Multiple matrices
+- Logic is straightforward once you understand the concept
+- **Start with:** `5_1.cpp` (Basic safety check)
+
+#### ⭐⭐⭐⭐ **Level 4: HARDER** - New Concepts
+**Assignment 2 (Process Management)**
+- Introduces `fork()`, `exec()`
+- System calls (new concept)
+- Process behavior understanding needed
+- **Start with:** `2_1.cpp` (Basic fork)
+
+**Assignment 4 (Synchronization)**
+- Threads (new concept)
+- Semaphores, mutex
+- Concurrent programming
+- Race conditions to understand
+- **Start with:** `4_1.cpp` (Producer-Consumer)
+
+#### ⭐⭐⭐⭐⭐ **Level 5: HARDEST** - Most Complex
+**Assignment 7 (IPC)**
+- Message queues (complex API)
+- Shared memory (pointer usage)
+- Semaphore synchronization
+- Multi-process coordination
+- **Try Message Queue first:** `7_1_sender.cpp` & `7_1_receiver.cpp`
+
+---
+
 ## 🎓 Learning Outcomes
 
 After completing these assignments, you will understand:
