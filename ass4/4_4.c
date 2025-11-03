@@ -71,8 +71,8 @@ void* customer_thread(void* arg) {
 }
 
 int main() {
-    pthread_t barber;
-    pthread_t customers[NUM_CUSTOMERS];
+    pthread_t barber_tid;
+    pthread_t customer_tids[NUM_CUSTOMERS];
     int customer_ids[NUM_CUSTOMERS];
     
     // Initialize semaphores and mutex
@@ -85,25 +85,25 @@ int main() {
     printf("Number of customers: %d\n\n", NUM_CUSTOMERS);
     
     // Create barber thread
-    pthread_create(&barber, NULL, barber_thread, NULL);
+    pthread_create(&barber_tid, NULL, barber_thread, NULL);
     
     sleep(1);
     
     // Create customer threads
     for(int i = 0; i < NUM_CUSTOMERS; i++) {
         customer_ids[i] = i + 1;
-        pthread_create(&customers[i], NULL, customer_thread, &customer_ids[i]);
+        pthread_create(&customer_tids[i], NULL, customer_thread, &customer_ids[i]);
     }
     
     // Wait for all customers
     for(int i = 0; i < NUM_CUSTOMERS; i++) {
-        pthread_join(customers[i], NULL);
+        pthread_join(customer_tids[i], NULL);
     }
     
     printf("\n=== All customers served ===\n");
     
     // Cleanup
-    pthread_cancel(barber);
+    pthread_cancel(barber_tid);
     sem_destroy(&customers);
     sem_destroy(&barber);
     pthread_mutex_destroy(&mutex);
