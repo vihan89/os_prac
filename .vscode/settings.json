@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "*.embeddedhtml": "html",
+        "cstdlib": "cpp",
+        "iostream": "cpp",
+        "cstring": "cpp",
+        "cmath": "cpp",
+        "iomanip": "cpp",
+        "algorithm": "cpp"
+    }
+}
