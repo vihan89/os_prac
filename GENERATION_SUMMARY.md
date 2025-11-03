@@ -7,14 +7,14 @@ Successfully created **comment-free versions** of all 26 OS lab programs in sepa
 ## What Was Done
 
 ### Original Directories (WITH COMMENTS)
-- `ass1/` - 4 shell scripts with extensive comments
-- `ass2/` - 4 C++ programs with detailed explanations
-- `ass3/` - 3 C++ programs with algorithm notes
-- `ass4/` - 4 C++ programs with synchronization details
-- `ass5/` - 2 C++ programs with safety algorithm notes
-- `ass6/` - 2 C++ programs with page replacement explanations
-- `ass7/` - 4 C++ programs with IPC documentation
-- `ass8/` - 2 C++ programs with disk scheduling notes
+- `os/ass1/` - 4 shell scripts with extensive comments
+- `os/ass2/` - 4 C++ programs with detailed explanations
+- `os/ass3/` - 3 C++ programs with algorithm notes
+- `os/ass4/` - 4 C++ programs with synchronization details
+- `os/ass5/` - 2 C++ programs with safety algorithm notes
+- `os/ass6/` - 2 C++ programs with page replacement explanations
+- `os/ass7/` - 4 C++ programs with IPC documentation
+- `os/ass8/` - 2 C++ programs with disk scheduling notes
 
 ### New Directory Structure (NO COMMENTS)
 ```
@@ -180,14 +180,15 @@ g++ no_comments/ass7/7_2_server.cpp -o server -lpthread -lrt
 
 ```
 os_prac/
-├── ass1/ (original with comments)
-├── ass2/ (original with comments)
-├── ass3/ (original with comments)
-├── ass4/ (original with comments)
-├── ass5/ (original with comments)
-├── ass6/ (original with comments)
-├── ass7/ (original with comments)
-├── ass8/ (original with comments)
+├── os/
+│   ├── ass1/ (original with comments)
+│   ├── ass2/ (original with comments)
+│   ├── ass3/ (original with comments)
+│   ├── ass4/ (original with comments)
+│   ├── ass5/ (original with comments)
+│   ├── ass6/ (original with comments)
+│   ├── ass7/ (original with comments)
+│   └── ass8/ (original with comments)
 ├── no_comments/
 │   ├── ass1/ (code only)
 │   ├── ass2/ (code only)

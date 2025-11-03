@@ -72,7 +72,7 @@ def main():
     
     # Process all assignment folders
     for i in range(1, 9):
-        src_dir = os.path.join(base_dir, f'ass{i}')
+        src_dir = os.path.join(base_dir, 'os', f'ass{i}')
         dst_dir = os.path.join(base_dir, 'no_comments', f'ass{i}')
         
         if not os.path.exists(src_dir):

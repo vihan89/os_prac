@@ -11,14 +11,14 @@
 
   Original (WITH comments)         →    No-Comments (CODE only)
   ────────────────────────────────────────────────────────────────────────
-  ass1/  (4 shell scripts)         →    no_comments/ass1/
-  ass2/  (4 C++ programs)          →    no_comments/ass2/
-  ass3/  (3 C++ programs)          →    no_comments/ass3/
-  ass4/  (4 C++ programs)          →    no_comments/ass4/
-  ass5/  (2 C++ programs)          →    no_comments/ass5/
-  ass6/  (2 C++ programs)          →    no_comments/ass6/
-  ass7/  (4 C++ programs)          →    no_comments/ass7/
-  ass8/  (2 C++ programs)          →    no_comments/ass8/
+  os/ass1/  (4 shell scripts)      →    no_comments/ass1/
+  os/ass2/  (4 C++ programs)       →    no_comments/ass2/
+  os/ass3/  (3 C++ programs)       →    no_comments/ass3/
+  os/ass4/  (4 C++ programs)       →    no_comments/ass4/
+  os/ass5/  (2 C++ programs)       →    no_comments/ass5/
+  os/ass6/  (2 C++ programs)       →    no_comments/ass6/
+  os/ass7/  (4 C++ programs)       →    no_comments/ass7/
+  os/ass8/  (2 C++ programs)       →    no_comments/ass8/
 
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │ 🔧 COMPILATION COMMANDS                                                      │

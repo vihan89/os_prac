@@ -21,7 +21,7 @@ no_comments/
 1. **Code is IDENTICAL** to original versions - only comments removed
 2. **Functionality unchanged** - all logic preserved word-for-word
 3. **Use for practice** - try understanding code without comments
-4. **Refer to original** versions (ass1/, ass2/, etc.) for detailed explanations
+4. **Refer to original** versions (os/ass1/, os/ass2/, etc.) for detailed explanations
 
 ## 🔄 How These Were Generated
 
@@ -75,5 +75,5 @@ g++ no_comments/ass4/4_1.cpp -o 4_1 -lpthread
 
 ---
 
-**Original commented versions**: See `ass1/`, `ass2/`, ..., `ass8/` folders
-**Main README**: See `../README.md` for full documentation
+**Original commented versions**: See `os/ass1/`, `os/ass2/`, ..., `os/ass8/` folders
+**Main README**: See `README.md` for full documentation
