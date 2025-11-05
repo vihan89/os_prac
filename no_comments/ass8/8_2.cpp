@@ -1,209 +1,87 @@
-
-
 #include <iostream>
 #include <algorithm>
 #include <cmath>
-
 using namespace std;
 
-#define MAX_REQUESTS 50
-
-int calculateMovement(int sequence[], int n, string name) {
-    cout << "\n" << name << " Sequence:" << endl;
-    
-    int totalMovement = 0;
+void scan(int req[], int n, int head, int size) {
+    int left[50], right[50], lc = 0, rc = 0;
     
     for(int i = 0; i < n; i++) {
-        cout << sequence[i];
-        if(i < n-1) {
-            cout << " -> ";
-            totalMovement += abs(sequence[i+1] - sequence[i]);
-        }
-    }
-    cout << endl;
-    
-    cout << "\nDetailed Movement:" << endl;
-    for(int i = 0; i < n-1; i++) {
-        int move = abs(sequence[i+1] - sequence[i]);
-        cout << sequence[i] << " → " << sequence[i+1] 
-             << " : " << move << " cylinders" << endl;
+        if(req[i] < head) left[lc++] = req[i];
+        else right[rc++] = req[i];
     }
     
-    cout << "\nTotal Head Movement: " << totalMovement << " cylinders" << endl;
-    cout << "Average Seek Time: " << (totalMovement / (float)(n-1)) << " cylinders" << endl;
+    sort(left, left + lc);
+    sort(right, right + rc);
     
-    return totalMovement;
+    cout << "\n=== SCAN ===" << endl;
+    cout << "Sequence: " << head;
+    int total = 0, prev = head;
+    
+    for(int i = 0; i < rc; i++) {
+        cout << " -> " << right[i];
+        total += abs(right[i] - prev);
+        prev = right[i];
+    }
+    if(rc == 0 || right[rc-1] != size-1) {
+        cout << " -> " << (size-1);
+        total += abs(size-1 - prev);
+        prev = size-1;
+    }
+    for(int i = lc-1; i >= 0; i--) {
+        cout << " -> " << left[i];
+        total += abs(left[i] - prev);
+        prev = left[i];
+    }
+    cout << "\nTotal Movement: " << total << endl;
 }
 
-void scan(int requests[], int n, int head, int diskSize, string direction) {
-    cout << "\n========================================" << endl;
-    cout << "  SCAN (ELEVATOR) DISK SCHEDULING" << endl;
-    cout << "========================================" << endl;
+void look(int req[], int n, int head, int size) {
+    int left[50], right[50], lc = 0, rc = 0;
     
-    int sequence[MAX_REQUESTS + 3];
-    int left[MAX_REQUESTS], right[MAX_REQUESTS];
-    int leftCount = 0, rightCount = 0;
-    
-
     for(int i = 0; i < n; i++) {
-        if(requests[i] < head)
-            left[leftCount++] = requests[i];
-        else
-            right[rightCount++] = requests[i];
+        if(req[i] < head) left[lc++] = req[i];
+        else right[rc++] = req[i];
     }
     
-
-    sort(left, left + leftCount);
-    sort(right, right + rightCount);
+    sort(left, left + lc);
+    sort(right, right + rc);
     
-    int seqIndex = 0;
-    sequence[seqIndex++] = head;
+    cout << "\n=== LOOK ===" << endl;
+    cout << "Sequence: " << head;
+    int total = 0, prev = head;
     
-    if(direction == "right" || direction == "high") {
-
-        for(int i = 0; i < rightCount; i++) {
-            sequence[seqIndex++] = right[i];
-        }
-        
-
-        if(rightCount == 0 || right[rightCount-1] != diskSize-1) {
-            sequence[seqIndex++] = diskSize - 1;
-        }
-        
-
-        for(int i = leftCount - 1; i >= 0; i--) {
-            sequence[seqIndex++] = left[i];
-        }
-        
-        cout << "Direction: Right → End → Reverse → Left" << endl;
+    for(int i = 0; i < rc; i++) {
+        cout << " -> " << right[i];
+        total += abs(right[i] - prev);
+        prev = right[i];
     }
-    else {
-
-        for(int i = leftCount - 1; i >= 0; i--) {
-            sequence[seqIndex++] = left[i];
-        }
-        
-
-        if(leftCount == 0 || left[0] != 0) {
-            sequence[seqIndex++] = 0;
-        }
-        
-
-        for(int i = 0; i < rightCount; i++) {
-            sequence[seqIndex++] = right[i];
-        }
-        
-        cout << "Direction: Left → Start → Reverse → Right" << endl;
+    for(int i = lc-1; i >= 0; i--) {
+        cout << " -> " << left[i];
+        total += abs(left[i] - prev);
+        prev = left[i];
     }
-    
-    calculateMovement(sequence, seqIndex, "SCAN");
-}
-
-void look(int requests[], int n, int head, int diskSize, string direction) {
-    cout << "\n========================================" << endl;
-    cout << "  LOOK DISK SCHEDULING" << endl;
-    cout << "========================================" << endl;
-    
-    int sequence[MAX_REQUESTS + 1];
-    int left[MAX_REQUESTS], right[MAX_REQUESTS];
-    int leftCount = 0, rightCount = 0;
-    
-
-    for(int i = 0; i < n; i++) {
-        if(requests[i] < head)
-            left[leftCount++] = requests[i];
-        else
-            right[rightCount++] = requests[i];
-    }
-    
-
-    sort(left, left + leftCount);
-    sort(right, right + rightCount);
-    
-    int seqIndex = 0;
-    sequence[seqIndex++] = head;
-    
-    if(direction == "right" || direction == "high") {
-
-        for(int i = 0; i < rightCount; i++) {
-            sequence[seqIndex++] = right[i];
-        }
-        
-
-        for(int i = leftCount - 1; i >= 0; i--) {
-            sequence[seqIndex++] = left[i];
-        }
-        
-        cout << "Direction: Right → Last → Reverse → Left" << endl;
-    }
-    else {
-
-        for(int i = leftCount - 1; i >= 0; i--) {
-            sequence[seqIndex++] = left[i];
-        }
-        
-
-        for(int i = 0; i < rightCount; i++) {
-            sequence[seqIndex++] = right[i];
-        }
-        
-        cout << "Direction: Left → First → Reverse → Right" << endl;
-    }
-    
-    calculateMovement(sequence, seqIndex, "LOOK");
+    cout << "\nTotal Movement: " << total << endl;
 }
 
 int main() {
-    int n, head, diskSize;
-    int requests[MAX_REQUESTS];
-    string direction;
+    int n, head, size, req[50];
     
-    cout << "========================================" << endl;
-    cout << "  DISK SCHEDULING: SCAN & LOOK" << endl;
-    cout << "========================================\n" << endl;
+    cout << "Enter disk size: ";
+    cin >> size;
+    cout << "Enter initial head position: ";
+    cin >> head;
+    cout << "Enter number of requests: ";
+    cin >> n;
+    cout << "Enter requests:\n";
+    for(int i = 0; i < n; i++) cin >> req[i];
     
-
-    diskSize = 500;
-    head = 185;
-    direction = "right";
+    cout << "\n1. SCAN\n2. LOOK\nChoice: ";
+    int choice;
+    cin >> choice;
     
-
-    int defaultRequests[] = {20, 229, 39, 450, 18, 145, 120, 380, 20, 250};
-    n = 10;
-    
-    cout << "Using problem statement values:" << endl;
-    cout << "Disk Size: 0-" << (diskSize-1) << endl;
-    cout << "Initial Head Position: " << head << endl;
-    cout << "Initial Direction: " << direction << " (towards 499)" << endl;
-    cout << "Request Queue (FIFO): ";
-    for(int i = 0; i < n; i++) {
-        requests[i] = defaultRequests[i];
-        cout << requests[i] << " ";
-    }
-    cout << "\nTotal Requests: " << n << endl;
-    
-
-    scan(requests, n, head, diskSize, direction);
-    look(requests, n, head, diskSize, direction);
-    
-
-    cout << "\n========================================" << endl;
-    cout << "  COMPARISON: SCAN vs LOOK" << endl;
-    cout << "========================================" << endl;
-    cout << "\nSCAN:" << endl;
-    cout << "  ✓ Goes to disk end" << endl;
-    cout << "  ✓ Then reverses direction" << endl;
-    cout << "  ✗ Unnecessary movement if no requests at end" << endl;
-    cout << "  - Known as 'Elevator Algorithm'" << endl;
-    
-    cout << "\nLOOK:" << endl;
-    cout << "  ✓ Only goes to last request" << endl;
-    cout << "  ✓ Then reverses direction" << endl;
-    cout << "  ✓ More efficient than SCAN" << endl;
-    cout << "  ✓ No unnecessary movement" << endl;
-    
-    cout << "\nConclusion: LOOK is generally better!" << endl;
+    if(choice == 1) scan(req, n, head, size);
+    else if(choice == 2) look(req, n, head, size);
     
     return 0;
 }
-

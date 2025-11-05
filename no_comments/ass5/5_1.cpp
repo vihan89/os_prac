@@ -1,171 +1,65 @@
-
-
 #include <iostream>
-#include <iomanip>
-
 using namespace std;
 
-#define MAX_PROCESS 10
-#define MAX_RESOURCE 10
-
 int n, m;
-int available[MAX_RESOURCE];
-int max_matrix[MAX_PROCESS][MAX_RESOURCE];
-int allocation[MAX_PROCESS][MAX_RESOURCE];
-int need[MAX_PROCESS][MAX_RESOURCE];
+int avail[10], max_m[10][10], alloc[10][10], need[10][10];
 
-void calculateNeed() {
-    for(int i = 0; i < n; i++) {
-        for(int j = 0; j < m; j++) {
-            need[i][j] = max_matrix[i][j] - allocation[i][j];
-        }
-    }
+void calcNeed() {
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < m; j++)
+            need[i][j] = max_m[i][j] - alloc[i][j];
 }
 
-void displayMatrix(int matrix[][MAX_RESOURCE], string name) {
-    cout << "\n" << name << " Matrix:" << endl;
-    for(int i = 0; i < n; i++) {
-        cout << "P" << i << ": ";
-        for(int j = 0; j < m; j++) {
-            cout << setw(3) << matrix[i][j];
-        }
-        cout << endl;
-    }
-}
-
-bool canAllocate(int process, int work[]) {
-    for(int j = 0; j < m; j++) {
-        if(need[process][j] > work[j])
-            return false;
-    }
-    return true;
-}
-
-bool isSafeState(int safeSeq[]) {
-    int work[MAX_RESOURCE];
-    bool finish[MAX_PROCESS] = {false};
+bool isSafe(int safe[]) {
+    int work[10], finish[10] = {0}, count = 0;
+    for(int i = 0; i < m; i++) work[i] = avail[i];
     
-
-    for(int i = 0; i < m; i++) {
-        work[i] = available[i];
-    }
-    
-    int count = 0;
-    
-
     while(count < n) {
         bool found = false;
-        
         for(int i = 0; i < n; i++) {
-            if(!finish[i] && canAllocate(i, work)) {
-
-                cout << "\nP" << i << " can complete (Need <= Work)" << endl;
-                cout << "  Work: ";
-                for(int j = 0; j < m; j++) cout << work[j] << " ";
-                cout << endl;
+            if(!finish[i]) {
+                bool can = true;
+                for(int j = 0; j < m; j++)
+                    if(need[i][j] > work[j]) { can = false; break; }
                 
-
-                for(int j = 0; j < m; j++) {
-                    work[j] += allocation[i][j];
+                if(can) {
+                    for(int j = 0; j < m; j++) work[j] += alloc[i][j];
+                    safe[count++] = i;
+                    finish[i] = 1;
+                    found = true;
                 }
-                
-                cout << "  After P" << i << " completes, Work: ";
-                for(int j = 0; j < m; j++) cout << work[j] << " ";
-                cout << endl;
-                
-                safeSeq[count++] = i;
-                finish[i] = true;
-                found = true;
             }
         }
-        
-        if(!found) {
-
-            cout << "\n❌ No process can proceed. System is UNSAFE!" << endl;
-            cout << "Remaining processes: ";
-            for(int i = 0; i < n; i++) {
-                if(!finish[i]) cout << "P" << i << " ";
-            }
-            cout << endl;
-            return false;
-        }
+        if(!found) return false;
     }
-    
     return true;
 }
 
 int main() {
-    cout << "========================================" << endl;
-    cout << "  BANKER'S ALGORITHM - SAFETY CHECK" << endl;
-    cout << "========================================\n" << endl;
+    cout << "Enter processes, resources: ";
+    cin >> n >> m;
     
-
-    cout << "Enter number of processes: ";
-    cin >> n;
-    cout << "Enter number of resources: ";
-    cin >> m;
+    cout << "Enter Available:\n";
+    for(int i = 0; i < m; i++) cin >> avail[i];
     
-    cout << "\nEnter Available resources:" << endl;
-    for(int i = 0; i < m; i++) {
-        cout << "Resource " << i << ": ";
-        cin >> available[i];
-    }
+    cout << "Enter Max matrix:\n";
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < m; j++) cin >> max_m[i][j];
     
-    cout << "\nEnter Max Matrix:" << endl;
-    for(int i = 0; i < n; i++) {
-        cout << "P" << i << ": ";
-        for(int j = 0; j < m; j++) {
-            cin >> max_matrix[i][j];
-        }
-    }
+    cout << "Enter Allocation matrix:\n";
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < m; j++) cin >> alloc[i][j];
     
-    cout << "\nEnter Allocation Matrix:" << endl;
-    for(int i = 0; i < n; i++) {
-        cout << "P" << i << ": ";
-        for(int j = 0; j < m; j++) {
-            cin >> allocation[i][j];
-        }
-    }
+    calcNeed();
     
-
-    calculateNeed();
-    
-
-    cout << "\n========================================" << endl;
-    cout << "  RESOURCE MATRICES" << endl;
-    cout << "========================================" << endl;
-    
-    cout << "\nAvailable: ";
-    for(int i = 0; i < m; i++) cout << available[i] << " ";
-    cout << endl;
-    
-    displayMatrix(allocation, "Allocation");
-    displayMatrix(max_matrix, "Max");
-    displayMatrix(need, "Need");
-    
-
-    cout << "\n========================================" << endl;
-    cout << "  SAFETY ALGORITHM EXECUTION" << endl;
-    cout << "========================================" << endl;
-    
-    int safeSeq[MAX_PROCESS];
-    
-    if(isSafeState(safeSeq)) {
-        cout << "\n✓ System is in SAFE state!" << endl;
-        cout << "\nSafe Sequence: ";
-        for(int i = 0; i < n; i++) {
-            cout << "P" << safeSeq[i];
-            if(i < n-1) cout << " -> ";
-        }
+    int safe[10];
+    if(isSafe(safe)) {
+        cout << "SAFE. Sequence: ";
+        for(int i = 0; i < n; i++) cout << "P" << safe[i] << " ";
         cout << endl;
+    } else {
+        cout << "UNSAFE" << endl;
     }
-    else {
-        cout << "\n❌ System is in UNSAFE state!" << endl;
-        cout << "Deadlock may occur!" << endl;
-    }
-    
-    cout << "\n========================================" << endl;
     
     return 0;
 }
-

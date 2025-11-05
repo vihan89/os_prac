@@ -1,169 +1,97 @@
-
-
 #include <iostream>
 #include <algorithm>
 #include <cmath>
-
 using namespace std;
 
-#define MAX_REQUESTS 50
-
-int calculateMovement(int sequence[], int n, string name) {
-    cout << "\n" << name << " Sequence:" << endl;
-    
-    int totalMovement = 0;
+void cscan(int req[], int n, int head, int size) {
+    int left[50], right[50], lc = 0, rc = 0;
     
     for(int i = 0; i < n; i++) {
-        cout << sequence[i];
-        if(i < n-1) {
-            cout << " -> ";
-            totalMovement += abs(sequence[i+1] - sequence[i]);
+        if(req[i] < head) left[lc++] = req[i];
+        else right[rc++] = req[i];
+    }
+    
+    sort(left, left + lc);
+    sort(right, right + rc);
+    
+    cout << "\n=== C-SCAN ===" << endl;
+    cout << "Sequence: " << head;
+    int total = 0, prev = head;
+    
+    for(int i = 0; i < rc; i++) {
+        cout << " -> " << right[i];
+        total += abs(right[i] - prev);
+        prev = right[i];
+    }
+    if(rc > 0 && right[rc-1] != size-1) {
+        cout << " -> " << (size-1);
+        total += abs(size-1 - prev);
+        prev = size-1;
+    }
+    if(lc > 0) {
+        cout << " -> 0";
+        total += abs(prev - 0);
+        prev = 0;
+        for(int i = 0; i < lc; i++) {
+            cout << " -> " << left[i];
+            total += abs(left[i] - prev);
+            prev = left[i];
         }
     }
-    cout << endl;
-    
-    cout << "\nTotal Head Movement: " << totalMovement << " cylinders" << endl;
-    cout << "Average Seek Time: " << (totalMovement / (float)(n-1)) << " cylinders" << endl;
-    
-    return totalMovement;
+    cout << "\nTotal Movement: " << total << endl;
 }
 
-void cscan(int requests[], int n, int head, int diskSize) {
-    cout << "\n========================================" << endl;
-    cout << "  C-SCAN DISK SCHEDULING" << endl;
-    cout << "========================================" << endl;
+void clook(int req[], int n, int head, int size) {
+    int left[50], right[50], lc = 0, rc = 0;
     
-    int sequence[MAX_REQUESTS + 3];
-    int left[MAX_REQUESTS], right[MAX_REQUESTS];
-    int leftCount = 0, rightCount = 0;
-    
-
     for(int i = 0; i < n; i++) {
-        if(requests[i] < head)
-            left[leftCount++] = requests[i];
-        else
-            right[rightCount++] = requests[i];
+        if(req[i] < head) left[lc++] = req[i];
+        else right[rc++] = req[i];
     }
     
-
-    sort(left, left + leftCount);
-    sort(right, right + rightCount);
+    sort(left, left + lc);
+    sort(right, right + rc);
     
-    int seqIndex = 0;
+    cout << "\n=== C-LOOK ===" << endl;
+    cout << "Sequence: " << head;
+    int total = 0, prev = head;
     
-
-    sequence[seqIndex++] = head;
-    
-
-    for(int i = 0; i < rightCount; i++) {
-        sequence[seqIndex++] = right[i];
+    for(int i = 0; i < rc; i++) {
+        cout << " -> " << right[i];
+        total += abs(right[i] - prev);
+        prev = right[i];
     }
-    
-
-    if(rightCount > 0 && right[rightCount-1] != diskSize-1) {
-        sequence[seqIndex++] = diskSize - 1;
-    }
-    
-
-    if(leftCount > 0) {
-        sequence[seqIndex++] = 0;
-        
-
-        for(int i = 0; i < leftCount; i++) {
-            sequence[seqIndex++] = left[i];
+    if(lc > 0) {
+        cout << " -> " << left[0];
+        total += abs(left[0] - prev);
+        prev = left[0];
+        for(int i = 1; i < lc; i++) {
+            cout << " -> " << left[i];
+            total += abs(left[i] - prev);
+            prev = left[i];
         }
     }
-    
-
-    calculateMovement(sequence, seqIndex, "C-SCAN");
-    
-    cout << "\nDirection: Right → End → Jump to Start → Right" << endl;
-}
-
-void clook(int requests[], int n, int head, int diskSize) {
-    cout << "\n========================================" << endl;
-    cout << "  C-LOOK DISK SCHEDULING" << endl;
-    cout << "========================================" << endl;
-    
-    int sequence[MAX_REQUESTS + 1];
-    int left[MAX_REQUESTS], right[MAX_REQUESTS];
-    int leftCount = 0, rightCount = 0;
-    
-
-    for(int i = 0; i < n; i++) {
-        if(requests[i] < head)
-            left[leftCount++] = requests[i];
-        else
-            right[rightCount++] = requests[i];
-    }
-    
-
-    sort(left, left + leftCount);
-    sort(right, right + rightCount);
-    
-    int seqIndex = 0;
-    
-
-    sequence[seqIndex++] = head;
-    
-
-    for(int i = 0; i < rightCount; i++) {
-        sequence[seqIndex++] = right[i];
-    }
-    
-
-    if(leftCount > 0) {
-        for(int i = 0; i < leftCount; i++) {
-            sequence[seqIndex++] = left[i];
-        }
-    }
-    
-
-    calculateMovement(sequence, seqIndex, "C-LOOK");
-    
-    cout << "\nDirection: Right → Last Request → Jump to First Left → Right" << endl;
+    cout << "\nTotal Movement: " << total << endl;
 }
 
 int main() {
-    int n, head, diskSize;
-    int requests[MAX_REQUESTS];
+    int n, head, size, req[50];
     
-    cout << "========================================" << endl;
-    cout << "  DISK SCHEDULING: C-SCAN & C-LOOK" << endl;
-    cout << "========================================\n" << endl;
+    cout << "Enter disk size: ";
+    cin >> size;
+    cout << "Enter initial head position: ";
+    cin >> head;
+    cout << "Enter number of requests: ";
+    cin >> n;
+    cout << "Enter requests:\n";
+    for(int i = 0; i < n; i++) cin >> req[i];
     
-
-    diskSize = 500;
-    head = 85;
+    cout << "\n1. C-SCAN\n2. C-LOOK\nChoice: ";
+    int choice;
+    cin >> choice;
     
-
-    int defaultRequests[] = {10, 229, 39, 400, 18, 145, 120, 480, 20, 250};
-    n = 10;
-    
-    cout << "Using problem statement values:" << endl;
-    cout << "Disk Size: 0-" << (diskSize-1) << endl;
-    cout << "Initial Head Position: " << head << endl;
-    cout << "Request Queue (FIFO): ";
-    for(int i = 0; i < n; i++) {
-        requests[i] = defaultRequests[i];
-        cout << requests[i] << " ";
-    }
-    cout << "\nTotal Requests: " << n << endl;
-    cout << "Initial Direction: Towards 499 (right)" << endl;
-    
-
-    cscan(requests, n, head, diskSize);
-    clook(requests, n, head, diskSize);
-    
-
-    cout << "\n========================================" << endl;
-    cout << "  COMPARISON" << endl;
-    cout << "========================================" << endl;
-    cout << "C-SCAN: Goes to disk end before jumping" << endl;
-    cout << "C-LOOK: Only goes to last request before jumping" << endl;
-    cout << "\nC-LOOK is more efficient (less movement)" << endl;
-    cout << "Both provide uniform wait time" << endl;
+    if(choice == 1) cscan(req, n, head, size);
+    else if(choice == 2) clook(req, n, head, size);
     
     return 0;
 }
-
