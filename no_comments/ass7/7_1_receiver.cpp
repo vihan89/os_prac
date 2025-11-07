@@ -21,6 +21,11 @@ int main() {
             if(m.text[i] >= 'a' && m.text[i] <= 'z')
                 m.text[i] -= 32;
         cout << "Received (uppercase): " << m.text << endl;
+        
+        if(strcmp(m.text, "EXIT") == 0) {
+            cout << "Exit command received. Shutting down..." << endl;
+            break;
+        }
     }
     
     msgctl(msgid, IPC_RMID, NULL);

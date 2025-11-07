@@ -20,7 +20,12 @@ int main() {
     cout << "Server (type 'exit' to quit)" << endl;
     while(true) {
         cout << "Write: ";
-        cin.getline(shm->msg, 1000);
+        if(!cin.getline(shm->msg, 1000)) {
+            cout << "\nInput error or EOF. Exiting..." << endl;
+            strcpy(shm->msg, "EXIT");
+            sem_post(&shm->sem);
+            break;
+        }
         if(strcmp(shm->msg, "exit") == 0) {
             strcpy(shm->msg, "EXIT");
             sem_post(&shm->sem);

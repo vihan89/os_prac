@@ -7,20 +7,22 @@ using namespace std;
 #define STUDENTS 10
 #define CHAIRS 3
 
-int waiting = 0;
+int waiting = 0, students_helped = 0;
 sem_t students_sem, ta_sem;
 pthread_mutex_t mutex;
 
 void* ta_thread(void* arg) {
-    while(true) {
+    while(students_helped < STUDENTS) {
         sem_wait(&students_sem);
         pthread_mutex_lock(&mutex);
         waiting--;
+        students_helped++;
         cout << "TA helping student (waiting: " << waiting << ")" << endl;
         pthread_mutex_unlock(&mutex);
         sleep(2);
         sem_post(&ta_sem);
     }
+    cout << "TA: All students helped. Going home." << endl;
     return NULL;
 }
 
@@ -61,7 +63,7 @@ int main() {
     for(int i = 0; i < STUDENTS; i++)
         pthread_join(students[i], NULL);
     
-    pthread_cancel(ta);
+    pthread_join(ta, NULL);
     sem_destroy(&students_sem);
     sem_destroy(&ta_sem);
     pthread_mutex_destroy(&mutex);

@@ -1,57 +1,35 @@
 #!/bin/bash
 
 test_exists() {
-    echo "Filename: "; read file
-    if [ -e "$file" ]; then
-        echo "EXISTS"
-        [ -r "$file" ] && echo "Readable" || echo "Not readable"
-        [ -w "$file" ] && echo "Writable" || echo "Not writable"
-        [ -x "$file" ] && echo "Executable" || echo "Not executable"
-    else
-        echo "Does not exist"
-    fi
+    echo -n "File: "; read file
+    [ -e "$file" ] && echo "EXISTS" || echo "NOT EXISTS"
+    [ -r "$file" ] && echo "Readable"
+    [ -w "$file" ] && echo "Writable"
+    [ -x "$file" ] && echo "Executable"
 }
 
 read_file() {
-    echo "Filename: "; read file
-    if [ ! -f "$file" ]; then
-        echo "Not a file or doesn't exist"
-    elif [ ! -r "$file" ]; then
-        echo "Not readable"
-    elif [ ! -s "$file" ]; then
-        echo "Empty file"
-    else
-        cat "$file"
-        echo "Lines: $(wc -l < "$file")"
-    fi
+    echo -n "File: "; read file
+    [ ! -f "$file" ] && echo "Not a file" && return
+    [ ! -s "$file" ] && echo "Empty" && return
+    cat "$file"
+    echo "Lines: $(wc -l < "$file")"
 }
 
 delete_file() {
-    echo "Filename: "; read file
-    if [ ! -f "$file" ]; then
-        echo "Not a file"
-    else
-        echo "Delete '$file'? (y/n): "; read confirm
-        [ "$confirm" = "y" ] && rm "$file" && echo "Deleted" || echo "Cancelled"
-    fi
+    echo -n "File: "; read file
+    rm "$file" 2>/dev/null && echo "Deleted" || echo "Failed"
 }
 
 list_files() {
-    echo "1.Current dir 2.Specific dir 3.Pattern"
-    read choice
-    case $choice in
-        1) ls -lh | grep "^-" ;;
-        2) echo "Path: "; read dir; [ -d "$dir" ] && ls -lh "$dir" | grep "^-" || echo "Invalid dir" ;;
-        3) echo "Pattern: "; read pat; ls $pat 2>/dev/null || echo "No match" ;;
-    esac
+    echo -n "1.Current 2.Path 3.Pattern: "; read ch
+    [ "$ch" = 1 ] && ls -lh | grep "^-"
+    [ "$ch" = 2 ] && { echo -n "Path: "; read dir; ls -lh "$dir" 2>/dev/null | grep "^-"; }
+    [ "$ch" = 3 ] && { echo -n "Pattern: "; read pat; ls $pat 2>/dev/null; }
 }
 
 create_file() {
-    echo "Filename: "; read file
-    if [ -e "$file" ]; then
-        echo "Exists. Overwrite? (y/n): "; read over
-        [ "$over" != "y" ] && echo "Cancelled" && return
-    fi
+    echo -n "File: "; read file
     echo "Content (EOF to end):"
     > "$file"
     while read line; do
@@ -62,22 +40,20 @@ create_file() {
 }
 
 file_info() {
-    echo "Filename: "; read file
+    echo -n "File: "; read file
     [ ! -e "$file" ] && echo "Not found" && return
     ls -lh "$file"
-    [ -f "$file" ] && [ -s "$file" ] && echo "Lines: $(wc -l < "$file"), Words: $(wc -w < "$file")"
+    [ -f "$file" ] && [ -s "$file" ] && echo "Lines: $(wc -l < "$file")"
 }
 
 while true; do
     echo -e "\n1.Test 2.Read 3.Delete 4.List 5.Create 6.Info 7.Quit"
-    read choice
-    case $choice in
-        1) test_exists ;;
-        2) read_file ;;
-        3) delete_file ;;
-        4) list_files ;;
-        5) create_file ;;
-        6) file_info ;;
-        7) exit 0 ;;
-    esac
+    read ch
+    [ "$ch" = 1 ] && test_exists
+    [ "$ch" = 2 ] && read_file
+    [ "$ch" = 3 ] && delete_file
+    [ "$ch" = 4 ] && list_files
+    [ "$ch" = 5 ] && create_file
+    [ "$ch" = 6 ] && file_info
+    [ "$ch" = 7 ] && exit
 done

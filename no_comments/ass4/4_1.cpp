@@ -8,12 +8,12 @@ using namespace std;
 #define ITEMS 10
 
 int buffer[SIZE], in = 0, out = 0;
-sem_t empty, full;
+sem_t sem_empty, sem_full;
 pthread_mutex_t mutex;
 
 void* producer(void* arg) {
     for(int i = 1; i <= ITEMS; i++) {
-        sem_wait(&empty);
+        sem_wait(&sem_empty);
         pthread_mutex_lock(&mutex);
         
         buffer[in] = i;
@@ -21,7 +21,7 @@ void* producer(void* arg) {
         in = (in + 1) % SIZE;
         
         pthread_mutex_unlock(&mutex);
-        sem_post(&full);
+        sem_post(&sem_full);
         sleep(1);
     }
     return NULL;
@@ -29,7 +29,7 @@ void* producer(void* arg) {
 
 void* consumer(void* arg) {
     for(int i = 1; i <= ITEMS; i++) {
-        sem_wait(&full);
+        sem_wait(&sem_full);
         pthread_mutex_lock(&mutex);
         
         int item = buffer[out];
@@ -37,7 +37,7 @@ void* consumer(void* arg) {
         out = (out + 1) % SIZE;
         
         pthread_mutex_unlock(&mutex);
-        sem_post(&empty);
+        sem_post(&sem_empty);
         sleep(2);
     }
     return NULL;
@@ -46,8 +46,8 @@ void* consumer(void* arg) {
 int main() {
     pthread_t prod, cons;
     
-    sem_init(&empty, 0, SIZE);
-    sem_init(&full, 0, 0);
+    sem_init(&sem_empty, 0, SIZE);
+    sem_init(&sem_full, 0, 0);
     pthread_mutex_init(&mutex, NULL);
     
     pthread_create(&prod, NULL, producer, NULL);
@@ -56,8 +56,8 @@ int main() {
     pthread_join(prod, NULL);
     pthread_join(cons, NULL);
     
-    sem_destroy(&empty);
-    sem_destroy(&full);
+    sem_destroy(&sem_empty);
+    sem_destroy(&sem_full);
     pthread_mutex_destroy(&mutex);
     
     return 0;

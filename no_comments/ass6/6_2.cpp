@@ -1,7 +1,7 @@
 #include <iostream>
 using namespace std;
 
-int ref[50], n;
+int page_ref[50], n;
 
 void optimal(int frames) {
     int mem[10] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
@@ -13,13 +13,13 @@ void optimal(int frames) {
     for(int i = 0; i < n; i++) {
         int pos = -1;
         for(int j = 0; j < frames; j++) {
-            if(mem[j] == ref[i]) {
+            if(mem[j] == page_ref[i]) {
                 pos = j;
                 break;
             }
         }
         
-        cout << ref[i] << "    ";
+        cout << page_ref[i] << "    ";
         if(pos == -1) {
             faults++;
             int victim = 0;
@@ -33,13 +33,13 @@ void optimal(int frames) {
             }
             
             if(empty != -1) {
-                mem[empty] = ref[i];
+                mem[empty] = page_ref[i];
             } else {
                 int farthest = -1;
                 for(int j = 0; j < frames; j++) {
                     int next_use = 9999;
                     for(int k = i + 1; k < n; k++) {
-                        if(ref[k] == mem[j]) {
+                        if(page_ref[k] == mem[j]) {
                             next_use = k;
                             break;
                         }
@@ -49,7 +49,7 @@ void optimal(int frames) {
                         victim = j;
                     }
                 }
-                mem[victim] = ref[i];
+                mem[victim] = page_ref[i];
             }
         }
         
@@ -73,13 +73,13 @@ void lru(int frames) {
     for(int i = 0; i < n; i++) {
         int pos = -1;
         for(int j = 0; j < frames; j++) {
-            if(mem[j] == ref[i]) {
+            if(mem[j] == page_ref[i]) {
                 pos = j;
                 break;
             }
         }
         
-        cout << ref[i] << "    ";
+        cout << page_ref[i] << "    ";
         if(pos != -1) {
             time[pos] = i;
         } else {
@@ -91,7 +91,7 @@ void lru(int frames) {
                     lru_idx = j;
                 }
             }
-            mem[lru_idx] = ref[i];
+            mem[lru_idx] = page_ref[i];
             time[lru_idx] = i;
         }
         
@@ -113,7 +113,7 @@ int main() {
     cin >> frames;
     
     cout << "Enter page reference string:\n";
-    for(int i = 0; i < n; i++) cin >> ref[i];
+    for(int i = 0; i < n; i++) cin >> page_ref[i];
     
     cout << "\n1. OPTIMAL\n2. LRU\nChoice: ";
     int choice;

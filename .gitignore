@@ -1,0 +1,22 @@
+# Ignore all files without extension (Linux executables)
+*
+!*/
+!*.*
+
+# But include these source files
+!*.cpp
+!*.sh
+!*.txt
+!*.md
+
+# Ignore compiled executables
+*.exe
+*.out
+*.o
+*.obj
+
+# Ignore temporary files
+*.swp
+*.swo
+*~
+.DS_Store

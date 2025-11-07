@@ -5,19 +5,20 @@ using namespace std;
 
 #define READERS 5
 #define WRITERS 2
+#define ITERATIONS 5
 
-int data = 0, reader_count = 0;
+int db_data = 0, reader_count = 0;
 pthread_mutex_t db_mutex, reader_mutex;
 
 void* reader(void* arg) {
     int id = *(int*)arg;
-    while(true) {
+    for(int iter = 0; iter < ITERATIONS; iter++) {
         pthread_mutex_lock(&reader_mutex);
         reader_count++;
         if(reader_count == 1) pthread_mutex_lock(&db_mutex);
         pthread_mutex_unlock(&reader_mutex);
         
-        cout << "Reader " << id << " reading: " << data << endl;
+        cout << "Reader " << id << " reading: " << db_data << endl;
         sleep(1);
         
         pthread_mutex_lock(&reader_mutex);
@@ -26,19 +27,21 @@ void* reader(void* arg) {
         pthread_mutex_unlock(&reader_mutex);
         sleep(2);
     }
+    cout << "Reader " << id << " finished." << endl;
     return NULL;
 }
 
 void* writer(void* arg) {
     int id = *(int*)arg;
-    while(true) {
+    for(int iter = 0; iter < ITERATIONS; iter++) {
         pthread_mutex_lock(&db_mutex);
-        data++;
-        cout << "Writer " << id << " writing: " << data << endl;
+        db_data++;
+        cout << "Writer " << id << " writing: " << db_data << endl;
         sleep(2);
         pthread_mutex_unlock(&db_mutex);
         sleep(3);
     }
+    cout << "Writer " << id << " finished." << endl;
     return NULL;
 }
 

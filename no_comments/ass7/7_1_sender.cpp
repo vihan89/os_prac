@@ -18,7 +18,10 @@ int main() {
     cout << "Sender (type 'exit' to quit)" << endl;
     while(true) {
         cout << "Message: ";
-        cin.getline(m.text, 512);
+        if(!cin.getline(m.text, 512)) {
+            cout << "\nInput error or EOF. Exiting..." << endl;
+            break;
+        }
         if(strcmp(m.text, "exit") == 0) break;
         msgsnd(msgid, &m, sizeof(m.text), 0);
         cout << "Sent!" << endl;
