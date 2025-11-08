@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.embeddedhtml": "html",
         "array": "cpp",
         "atomic": "cpp",
         "bit": "cpp",
@@ -58,6 +59,27 @@
         "text_encoding": "cpp",
         "cinttypes": "cpp",
         "typeinfo": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "condition_variable": "cpp",
+        "future": "cpp",
+        "complex": "cpp",
+        "csetjmp": "cpp",
+        "csignal": "cpp",
+        "valarray": "cpp",
+        "bitset": "cpp",
+        "cfenv": "cpp",
+        "codecvt": "cpp",
+        "cuchar": "cpp",
+        "forward_list": "cpp",
+        "list": "cpp",
+        "unordered_set": "cpp",
+        "map": "cpp",
+        "regex": "cpp",
+        "set": "cpp",
+        "mutex": "cpp",
+        "scoped_allocator": "cpp",
+        "shared_mutex": "cpp",
+        "thread": "cpp",
+        "typeindex": "cpp"
     }
 }
