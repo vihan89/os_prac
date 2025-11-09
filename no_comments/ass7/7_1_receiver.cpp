@@ -20,7 +20,7 @@ int main() {
         msgrcv(msgid, &m, sizeof(m.text), 0, 0);
         for(int i = 0; m.text[i]; i++)
             m.text[i] = toupper(m.text[i]);
-        cout << "[Type " << m.type << "] " << m.text << "\n";
+        cout << "Message received: " << m.text << "\n";
         if(strcmp(m.text, "EXIT") == 0) break;
     }
     
