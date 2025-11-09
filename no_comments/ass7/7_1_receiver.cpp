@@ -1,38 +1,27 @@
+// Receiver - Convert to uppercase
 #include <iostream>
 #include <sys/ipc.h>
 #include <sys/msg.h>
 #include <cstring>
+#include <cctype>
 using namespace std;
 
 struct msg {
     long type;
-    char text[512];
+    char text[100];
 };
 
 int main() {
-    key_t key = ftok(".", 'A');
+    key_t key = ftok("msgqueue", 65);
     int msgid = msgget(key, 0666);
-    
-    if(msgid == -1) {
-        cout << "Error: Message queue not found!" << endl;
-        cout << "Please start the sender first to create the queue." << endl;
-        return 1;
-    }
-    
     msg m;
     
-    cout << "Receiver waiting..." << endl;
     while(true) {
         msgrcv(msgid, &m, sizeof(m.text), 0, 0);
         for(int i = 0; m.text[i]; i++)
-            if(m.text[i] >= 'a' && m.text[i] <= 'z')
-                m.text[i] -= 32;
-        cout << "Received (uppercase): " << m.text << endl;
-        
-        if(strcmp(m.text, "EXIT") == 0) {
-            cout << "Exit command received. Shutting down..." << endl;
-            break;
-        }
+            m.text[i] = toupper(m.text[i]);
+        cout << "[Type " << m.type << "] " << m.text << "\n";
+        if(strcmp(m.text, "EXIT") == 0) break;
     }
     
     msgctl(msgid, IPC_RMID, NULL);

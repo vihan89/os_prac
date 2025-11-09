@@ -1,3 +1,4 @@
+// Sender - Message Queue
 #include <iostream>
 #include <sys/ipc.h>
 #include <sys/msg.h>
@@ -6,27 +7,22 @@ using namespace std;
 
 struct msg {
     long type;
-    char text[512];
+    char text[100];
 };
 
 int main() {
-    key_t key = ftok(".", 'A');
+    key_t key = ftok("msgqueue", 65);
     int msgid = msgget(key, IPC_CREAT | 0666);
     msg m;
-    m.type = 1;
+    int msgType = 1;
     
-    cout << "Sender (type 'exit' to quit)" << endl;
     while(true) {
         cout << "Message: ";
-        if(!cin.getline(m.text, 512)) {
-            cout << "\nInput error or EOF. Exiting..." << endl;
-            break;
-        }
+        cin.getline(m.text, 100);
+        m.type = msgType++;
         msgsnd(msgid, &m, sizeof(m.text), 0);
-        cout << "Sent!" << endl;
         if(strcmp(m.text, "exit") == 0) break;
     }
-    
     return 0;
 }
 
