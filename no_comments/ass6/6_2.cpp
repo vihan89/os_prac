@@ -1,126 +1,117 @@
+// OPTIMAL and LRU Page Replacement - Simple version
 #include <iostream>
 using namespace std;
 
-int page_ref[50], n;
-
-void optimal(int frames) {
-    int mem[10] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
-    int faults = 0;
+// OPTIMAL: Replace page not used for longest time in future
+void optimal(int ref[], int n, int frames) {
+    int mem[10], faults = 0;
+    for(int i = 0; i < 10; i++) mem[i] = -1;
     
-    cout << "\n=== OPTIMAL ===" << endl;
-    cout << "Ref  Frames" << endl;
-    
+    cout << "\n=== OPTIMAL ===\n";
     for(int i = 0; i < n; i++) {
+        // Check if page already in memory
         int pos = -1;
         for(int j = 0; j < frames; j++) {
-            if(mem[j] == page_ref[i]) {
+            if(mem[j] == ref[i]) {
                 pos = j;
                 break;
             }
         }
         
-        cout << page_ref[i] << "    ";
         if(pos == -1) {
-            faults++;
-            int victim = 0;
-            
-            int empty = -1;
+            // Find empty slot first
+            int victim = -1;
             for(int j = 0; j < frames; j++) {
                 if(mem[j] == -1) {
-                    empty = j;
+                    victim = j;
                     break;
                 }
             }
             
-            if(empty != -1) {
-                mem[empty] = page_ref[i];
-            } else {
+            // If no empty slot, find page used farthest in future
+            if(victim == -1) {
                 int farthest = -1;
                 for(int j = 0; j < frames; j++) {
-                    int next_use = 9999;
+                    int next = 9999;
                     for(int k = i + 1; k < n; k++) {
-                        if(page_ref[k] == mem[j]) {
-                            next_use = k;
+                        if(ref[k] == mem[j]) {
+                            next = k;
                             break;
                         }
                     }
-                    if(next_use > farthest) {
-                        farthest = next_use;
+                    if(next > farthest) {
+                        farthest = next;
                         victim = j;
                     }
                 }
-                mem[victim] = page_ref[i];
             }
+            
+            mem[victim] = ref[i];
+            faults++;
         }
         
-        for(int j = 0; j < frames; j++) {
-            if(mem[j] == -1) cout << "- ";
-            else cout << mem[j] << " ";
-        }
-        cout << (pos == -1 ? " FAULT" : " HIT") << endl;
+        // Display memory state
+        cout << ref[i] << " -> ";
+        for(int j = 0; j < frames; j++)
+            cout << (mem[j] == -1 ? "-" : to_string(mem[j])) << " ";
+        cout << (pos == -1 ? " FAULT\n" : " HIT\n");
     }
-    cout << "Total Faults: " << faults << endl;
+    cout << "Total Faults: " << faults << "\n";
 }
 
-void lru(int frames) {
-    int mem[10] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
-    int time[10] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
-    int faults = 0;
+// LRU: Replace least recently used page
+void lru(int ref[], int n, int frames) {
+    int mem[10], time[10], faults = 0;
+    for(int i = 0; i < 10; i++) mem[i] = time[i] = -1;
     
-    cout << "\n=== LRU ===" << endl;
-    cout << "Ref  Frames" << endl;
-    
+    cout << "\n=== LRU ===\n";
     for(int i = 0; i < n; i++) {
+        // Check if page already in memory
         int pos = -1;
         for(int j = 0; j < frames; j++) {
-            if(mem[j] == page_ref[i]) {
+            if(mem[j] == ref[i]) {
                 pos = j;
                 break;
             }
         }
         
-        cout << page_ref[i] << "    ";
         if(pos != -1) {
+            // Hit: update time
             time[pos] = i;
         } else {
+            // Fault: find LRU and replace
+            int lru = 0;
+            for(int j = 1; j < frames; j++)
+                if(time[j] < time[lru]) lru = j;
+            
+            mem[lru] = ref[i];
+            time[lru] = i;
             faults++;
-            int lru_idx = 0, min_time = time[0];
-            for(int j = 1; j < frames; j++) {
-                if(time[j] < min_time) {
-                    min_time = time[j];
-                    lru_idx = j;
-                }
-            }
-            mem[lru_idx] = page_ref[i];
-            time[lru_idx] = i;
         }
         
-        for(int j = 0; j < frames; j++) {
-            if(mem[j] == -1) cout << "- ";
-            else cout << mem[j] << " ";
-        }
-        cout << (pos != -1 ? " HIT" : " FAULT") << endl;
+        // Display memory state
+        cout << ref[i] << " -> ";
+        for(int j = 0; j < frames; j++)
+            cout << (mem[j] == -1 ? "-" : to_string(mem[j])) << " ";
+        cout << (pos != -1 ? " HIT\n" : " FAULT\n");
     }
-    cout << "Total Faults: " << faults << endl;
+    cout << "Total Faults: " << faults << "\n";
 }
 
 int main() {
-    int frames;
+    int n, ref[50];
     
-    cout << "Enter number of references: ";
-    cin >> n;
-    cout << "Enter number of frames: ";
-    cin >> frames;
+    cout << "Number of page references: "; cin >> n;
+    cout << "Enter page reference string: ";
+    for(int i = 0; i < n; i++) cin >> ref[i];
     
-    cout << "Enter page reference string:\n";
-    for(int i = 0; i < n; i++) cin >> page_ref[i];
+    cout << "\n========== FRAME SIZE = 3 ==========";
+    optimal(ref, n, 3);
+    lru(ref, n, 3);
     
-    cout << "\n1. OPTIMAL\n2. LRU\nChoice: ";
-    int choice;
-    cin >> choice;
-    
-    if(choice == 1) optimal(frames);
-    else if(choice == 2) lru(frames);
+    cout << "\n========== FRAME SIZE = 4 ==========";
+    optimal(ref, n, 4);
+    lru(ref, n, 4);
     
     return 0;
 }

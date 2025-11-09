@@ -1,72 +1,61 @@
+// Sleeping TA Problem
 #include <iostream>
 #include <pthread.h>
 #include <semaphore.h>
-#include <unistd.h>
 using namespace std;
 
-#define STUDENTS 10
-#define CHAIRS 3
+int wait = 0;
+sem_t s, t;
+pthread_mutex_t m;
 
-int waiting = 0, students_helped = 0;
-sem_t students_sem, ta_sem;
-pthread_mutex_t mutex;
-
-void* ta_thread(void* arg) {
-    while(students_helped < STUDENTS) {
-        sem_wait(&students_sem);
-        pthread_mutex_lock(&mutex);
-        waiting--;
-        students_helped++;
-        cout << "TA helping student (waiting: " << waiting << ")" << endl;
-        pthread_mutex_unlock(&mutex);
-        sleep(2);
-        sem_post(&ta_sem);
+void* ta(void* arg) {
+    for(int i = 0; i < 10; i++) {
+        sem_wait(&s);
+        pthread_mutex_lock(&m);
+        wait--;
+        cout << "TA help (wait=" << wait << ")\n";
+        pthread_mutex_unlock(&m);
+        sem_post(&t);
     }
-    cout << "TA: All students helped. Going home." << endl;
     return NULL;
 }
 
-void* student_thread(void* arg) {
+void* student(void* arg) {
     int id = *(int*)arg;
-    sleep(rand() % 3);
-    
-    pthread_mutex_lock(&mutex);
-    if(waiting < CHAIRS) {
-        waiting++;
-        cout << "Student " << id << " waiting (" << waiting << "/" << CHAIRS << ")" << endl;
-        pthread_mutex_unlock(&mutex);
-        sem_post(&students_sem);
-        sem_wait(&ta_sem);
-        cout << "Student " << id << " got help" << endl;
+    pthread_mutex_lock(&m);
+    if(wait < 3) {
+        wait++;
+        cout << "S" << id << " sit (" << wait << "/3)\n";
+        pthread_mutex_unlock(&m);
+        sem_post(&s);
+        sem_wait(&t);
+        cout << "S" << id << " done\n";
     } else {
-        cout << "Student " << id << " left (chairs full)" << endl;
-        pthread_mutex_unlock(&mutex);
+        cout << "S" << id << " left\n";
+        pthread_mutex_unlock(&m);
     }
     return NULL;
 }
 
 int main() {
-    pthread_t ta, students[STUDENTS];
-    int ids[STUDENTS];
+    pthread_t ta_t, st[10];
+    int id[10];
     
-    sem_init(&students_sem, 0, 0);
-    sem_init(&ta_sem, 0, 0);
-    pthread_mutex_init(&mutex, NULL);
+    sem_init(&s, 0, 0);
+    sem_init(&t, 0, 0);
+    pthread_mutex_init(&m, NULL);
     
-    pthread_create(&ta, NULL, ta_thread, NULL);
-    
-    for(int i = 0; i < STUDENTS; i++) {
-        ids[i] = i + 1;
-        pthread_create(&students[i], NULL, student_thread, &ids[i]);
+    pthread_create(&ta_t, NULL, ta, NULL);
+    for(int i = 0; i < 10; i++) {
+        id[i] = i+1;
+        pthread_create(&st[i], NULL, student, &id[i]);
     }
     
-    for(int i = 0; i < STUDENTS; i++)
-        pthread_join(students[i], NULL);
+    for(int i = 0; i < 10; i++) pthread_join(st[i], NULL);
+    pthread_join(ta_t, NULL);
     
-    pthread_join(ta, NULL);
-    sem_destroy(&students_sem);
-    sem_destroy(&ta_sem);
-    pthread_mutex_destroy(&mutex);
-    
+    sem_destroy(&s);
+    sem_destroy(&t);
+    pthread_mutex_destroy(&m);
     return 0;
 }

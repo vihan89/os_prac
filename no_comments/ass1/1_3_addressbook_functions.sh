@@ -9,8 +9,7 @@ search() {
 }
 
 add() {
-    id=1
-    [ -s "$FILE" ] && id=$(($(tail -1 "$FILE" | cut -d'|' -f1) + 1))
+    echo -n "ID: "; read id
     echo -n "Name: "; read name
     echo -n "Address: "; read addr
     echo -n "Phone: "; read phone

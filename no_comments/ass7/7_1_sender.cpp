@@ -22,9 +22,9 @@ int main() {
             cout << "\nInput error or EOF. Exiting..." << endl;
             break;
         }
-        if(strcmp(m.text, "exit") == 0) break;
         msgsnd(msgid, &m, sizeof(m.text), 0);
         cout << "Sent!" << endl;
+        if(strcmp(m.text, "exit") == 0) break;
     }
     
     return 0;

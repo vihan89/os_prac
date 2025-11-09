@@ -1,55 +1,60 @@
-#include <iostream>
-#include <algorithm>
+// C-SCAN / C-LOOK Disk Scheduling - Compare both algorithms
+#include <bits/stdc++.h>
 using namespace std;
 
-void disk_schedule(int req[], int n, int head, int size, bool cscan) {
-    int left[50], right[50], lc = 0, rc = 0;
+int disk_schedule(int req[], int n, int head, int size, bool cscan, string name) {
+    int L[50], R[50], lc = 0, rc = 0;
     
-    for(int i = 0; i < n; i++)
-        req[i] < head ? left[lc++] = req[i] : right[rc++] = req[i];
-    
-    sort(left, left + lc);
-    sort(right, right + rc);
-    
-    cout << "\nSequence: " << head;
-    int total = 0, prev = head;
-    
-    for(int i = 0; i < rc; i++) {
-        cout << " -> " << right[i];
-        total += right[i] - prev;
-        prev = right[i];
+    // Split into left and right
+    for(int i = 0; i < n; i++) {
+        if(req[i] < head)
+            L[lc++] = req[i];
+        else
+            R[rc++] = req[i];
     }
     
-    if(cscan && rc > 0 && prev != size-1) {
-        cout << " -> " << (size-1);
-        total += size-1 - prev;
-        prev = size-1;
+    sort(L, L + lc);
+    sort(R, R + rc);
+    
+    // Build sequence: head -> right -> (end/jump) -> left
+    int seq[100], sc = 0;
+    seq[sc++] = head;
+    for(int i = 0; i < rc; i++) seq[sc++] = R[i];
+    
+    if(cscan) {
+        if(rc > 0 && seq[sc-1] != size-1) seq[sc++] = size-1;
+        seq[sc++] = 0;
     }
     
-    if(lc > 0) {
-        int jump = cscan ? 0 : left[0];
-        cout << " -> " << jump;
-        total += abs(prev - jump);
-        prev = jump;
-        
-        for(int i = (cscan ? 0 : 1); i < lc; i++) {
-            cout << " -> " << left[i];
-            total += left[i] - prev;
-            prev = left[i];
-        }
+    for(int i = 0; i < lc; i++) seq[sc++] = L[i];
+    
+    // Calculate and display
+    cout << "\n" << name << ":\n";
+    cout << "Sequence: ";
+    int total = 0;
+    for(int i = 0; i < sc; i++) {
+        cout << seq[i];
+        if(i < sc-1) cout << " -> ";
+        if(i) total += abs(seq[i] - seq[i-1]);
     }
     
-    cout << "\nTotal: " << total << endl;
+    cout << "\nTotal Head Movement: " << total;
+    cout << "\nAverage Seek Distance: " << (float)total/n << "\n";
+    
+    return total;
 }
 
 int main() {
     int n, head, size, req[50];
-    cout << "Disk size: "; cin >> size;
+    cout << "Disk size (0 to ?): "; cin >> size;
     cout << "Head position: "; cin >> head;
-    cout << "Requests: "; cin >> n;
+    cout << "Number of requests: "; cin >> n;
+    cout << "Enter requests: ";
     for(int i = 0; i < n; i++) cin >> req[i];
-    cout << "1.C-SCAN 2.C-LOOK: ";
-    int ch; cin >> ch;
-    disk_schedule(req, n, head, size, ch == 1);
+    
+    // Run both algorithms
+    disk_schedule(req, n, head, size, true, "C-SCAN");
+    disk_schedule(req, n, head, size, false, "C-LOOK");
+    
     return 0;
 }

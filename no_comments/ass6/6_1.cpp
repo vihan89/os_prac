@@ -1,47 +1,41 @@
+// FIFO and LRU Page Replacement - Random page generation
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
 using namespace std;
 
-void fifo(int ref[], int n, int frames) {
-    int mem[10] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
-    int idx = 0, faults = 0;
-    
-    cout << "\n=== FIFO ===" << endl;
-    cout << "Ref  Frames" << endl;
+// FIFO: Replace oldest page (circular queue)
+int fifo(int ref[], int n, int frames) {
+    int mem[10], idx = 0, faults = 0;
+    for(int i = 0; i < 10; i++) mem[i] = -1;
     
     for(int i = 0; i < n; i++) {
-        bool found = false;
+        // Check if page already in memory
+        bool hit = false;
         for(int j = 0; j < frames; j++) {
             if(mem[j] == ref[i]) {
-                found = true;
+                hit = true;
                 break;
             }
         }
         
-        cout << ref[i] << "    ";
-        if(!found) {
+        // If not found, replace oldest
+        if(!hit) {
             mem[idx] = ref[i];
-            idx = (idx + 1) % frames;
+            idx = (idx + 1) % frames;  // circular
             faults++;
         }
-        
-        for(int j = 0; j < frames; j++) {
-            if(mem[j] == -1) cout << "- ";
-            else cout << mem[j] << " ";
-        }
-        cout << (found ? " HIT" : " FAULT") << endl;
     }
-    cout << "Total Faults: " << faults << endl;
+    return faults;
 }
 
-void lru(int ref[], int n, int frames) {
-    int mem[10] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
-    int time[10] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
-    int faults = 0;
-    
-    cout << "\n=== LRU ===" << endl;
-    cout << "Ref  Frames" << endl;
+// LRU: Replace least recently used page
+int lru(int ref[], int n, int frames) {
+    int mem[10], time[10], faults = 0;
+    for(int i = 0; i < 10; i++) mem[i] = time[i] = -1;
     
     for(int i = 0; i < n; i++) {
+        // Check if page already in memory
         int pos = -1;
         for(int j = 0; j < frames; j++) {
             if(mem[j] == ref[i]) {
@@ -50,48 +44,39 @@ void lru(int ref[], int n, int frames) {
             }
         }
         
-        cout << ref[i] << "    ";
         if(pos != -1) {
+            // Hit: update time
             time[pos] = i;
         } else {
+            // Fault: find LRU and replace
+            int lru = 0;
+            for(int j = 1; j < frames; j++)
+                if(time[j] < time[lru]) lru = j;
+            
+            mem[lru] = ref[i];
+            time[lru] = i;
             faults++;
-            int lru_idx = 0, min_time = time[0];
-            for(int j = 1; j < frames; j++) {
-                if(time[j] < min_time) {
-                    min_time = time[j];
-                    lru_idx = j;
-                }
-            }
-            mem[lru_idx] = ref[i];
-            time[lru_idx] = i;
         }
-        
-        for(int j = 0; j < frames; j++) {
-            if(mem[j] == -1) cout << "- ";
-            else cout << mem[j] << " ";
-        }
-        cout << (pos != -1 ? " HIT" : " FAULT") << endl;
     }
-    cout << "Total Faults: " << faults << endl;
+    return faults;
 }
 
 int main() {
-    int n, frames, ref[50];
+    int n, ref[50];
     
-    cout << "Enter number of references: ";
-    cin >> n;
-    cout << "Enter number of frames: ";
-    cin >> frames;
+    cout << "References: "; cin >> n;
     
-    cout << "Enter page reference string:\n";
-    for(int i = 0; i < n; i++) cin >> ref[i];
+    // Generate random pages (0-9)
+    srand(time(0));
+    cout << "Pages: ";
+    for(int i = 0; i < n; i++) {
+        ref[i] = rand() % 10;
+        cout << ref[i] << " ";
+    }
     
-    cout << "\n1. FIFO\n2. LRU\nChoice: ";
-    int choice;
-    cin >> choice;
-    
-    if(choice == 1) fifo(ref, n, frames);
-    else if(choice == 2) lru(ref, n, frames);
+    cout << "\n\nFrames  FIFO  LRU\n";
+    for(int f = 1; f <= 7; f++)
+        cout << "  " << f << "      " << fifo(ref, n, f) << "     " << lru(ref, n, f) << "\n";
     
     return 0;
 }

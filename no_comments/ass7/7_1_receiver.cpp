@@ -12,6 +12,13 @@ struct msg {
 int main() {
     key_t key = ftok(".", 'A');
     int msgid = msgget(key, 0666);
+    
+    if(msgid == -1) {
+        cout << "Error: Message queue not found!" << endl;
+        cout << "Please start the sender first to create the queue." << endl;
+        return 1;
+    }
+    
     msg m;
     
     cout << "Receiver waiting..." << endl;

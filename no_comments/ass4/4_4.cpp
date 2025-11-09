@@ -46,23 +46,31 @@ void* writer(void* arg) {
 }
 
 int main() {
-    pthread_t r[READERS], w[WRITERS];
-    int r_ids[READERS], w_ids[WRITERS];
+    pthread_t r1, r2, r3, r4, r5;
+    pthread_t w1, w2;
+    int r_id1 = 1, r_id2 = 2, r_id3 = 3, r_id4 = 4, r_id5 = 5;
+    int w_id1 = 1, w_id2 = 2;
     
     pthread_mutex_init(&db_mutex, NULL);
     pthread_mutex_init(&reader_mutex, NULL);
     
-    for(int i = 0; i < READERS; i++) {
-        r_ids[i] = i + 1;
-        pthread_create(&r[i], NULL, reader, &r_ids[i]);
-    }
-    for(int i = 0; i < WRITERS; i++) {
-        w_ids[i] = i + 1;
-        pthread_create(&w[i], NULL, writer, &w_ids[i]);
-    }
+    pthread_create(&r1, NULL, reader, &r_id1);
+    pthread_create(&r2, NULL, reader, &r_id2);
+    pthread_create(&r3, NULL, reader, &r_id3);
+    pthread_create(&r4, NULL, reader, &r_id4);
+    pthread_create(&r5, NULL, reader, &r_id5);
     
-    for(int i = 0; i < READERS; i++) pthread_join(r[i], NULL);
-    for(int i = 0; i < WRITERS; i++) pthread_join(w[i], NULL);
+    pthread_create(&w1, NULL, writer, &w_id1);
+    pthread_create(&w2, NULL, writer, &w_id2);
+    
+    pthread_join(r1, NULL);
+    pthread_join(r2, NULL);
+    pthread_join(r3, NULL);
+    pthread_join(r4, NULL);
+    pthread_join(r5, NULL);
+    
+    pthread_join(w1, NULL);
+    pthread_join(w2, NULL);
     
     pthread_mutex_destroy(&db_mutex);
     pthread_mutex_destroy(&reader_mutex);

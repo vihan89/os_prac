@@ -1,65 +1,84 @@
+// Banker's Algorithm - Safety Check (Simple version)
 #include <iostream>
 using namespace std;
 
-int n, m;
-int avail[10], max_m[10][10], alloc[10][10], need[10][10];
-
-void calcNeed() {
-    for(int i = 0; i < n; i++)
-        for(int j = 0; j < m; j++)
-            need[i][j] = max_m[i][j] - alloc[i][j];
-}
-
-bool isSafe(int safe[]) {
-    int work[10], finish[10] = {0}, count = 0;
-    for(int i = 0; i < m; i++) work[i] = avail[i];
-    
-    while(count < n) {
-        bool found = false;
-        for(int i = 0; i < n; i++) {
-            if(!finish[i]) {
-                bool can = true;
-                for(int j = 0; j < m; j++)
-                    if(need[i][j] > work[j]) { can = false; break; }
-                
-                if(can) {
-                    for(int j = 0; j < m; j++) work[j] += alloc[i][j];
-                    safe[count++] = i;
-                    finish[i] = 1;
-                    found = true;
-                }
-            }
-        }
-        if(!found) return false;
-    }
-    return true;
-}
-
 int main() {
-    cout << "Enter processes, resources: ";
-    cin >> n >> m;
+    int n, m;
+    int avail[10], max_m[10][10], alloc[10][10], need[10][10];
     
-    cout << "Enter Available:\n";
+    // Input
+    cout << "Processes: "; cin >> n;
+    cout << "Resources: "; cin >> m;
+    
+    cout << "Available: ";
     for(int i = 0; i < m; i++) cin >> avail[i];
     
-    cout << "Enter Max matrix:\n";
+    cout << "Max matrix:\n";
     for(int i = 0; i < n; i++)
         for(int j = 0; j < m; j++) cin >> max_m[i][j];
     
-    cout << "Enter Allocation matrix:\n";
+    cout << "Allocation matrix:\n";
     for(int i = 0; i < n; i++)
         for(int j = 0; j < m; j++) cin >> alloc[i][j];
     
-    calcNeed();
+    // Calculate Need = Max - Allocation
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < m; j++)
+            need[i][j] = max_m[i][j] - alloc[i][j];
     
-    int safe[10];
-    if(isSafe(safe)) {
-        cout << "SAFE. Sequence: ";
-        for(int i = 0; i < n; i++) cout << "P" << safe[i] << " ";
-        cout << endl;
-    } else {
-        cout << "UNSAFE" << endl;
+    // Safety Algorithm
+    int work[10], finish[10] = {0}, safe[10], count = 0;
+    for(int i = 0; i < m; i++) work[i] = avail[i];
+    
+    // Find safe sequence
+    while(count < n) {
+        bool found = false;
+        
+        for(int i = 0; i < n; i++) {
+            if(finish[i] == 0) {
+                // Check if Need[i] <= Work
+                bool canRun = true;
+                for(int j = 0; j < m; j++) {
+                    if(need[i][j] > work[j]) {
+                        canRun = false;
+                        break;
+                    }
+                }
+                
+                if(canRun) {
+                    // Allocate resources: Work = Work + Alloc[i]
+                    for(int j = 0; j < m; j++)
+                        work[j] += alloc[i][j];
+                    
+                    safe[count++] = i;
+                    finish[i] = 1;
+                    found = true;
+                    cout << "P" << i << " executes (Work: ";
+                    for(int j = 0; j < m; j++) cout << work[j] << " ";
+                    cout << ")\n";
+                }
+            }
+        }
+        
+        if(!found) {
+            cout << "\nState is UNSAFE!\n";
+            cout << "Reason: No process can execute with available resources.\n";
+            cout << "Remaining processes: ";
+            for(int i = 0; i < n; i++)
+                if(!finish[i]) cout << "P" << i << " ";
+            cout << "\nCurrent Work: ";
+            for(int i = 0; i < m; i++) cout << work[i] << " ";
+            cout << "\n** Deadlock detected! **\n";
+            return 0;
+        }
     }
+    
+    // Print safe sequence
+    cout << "\nState is SAFE!\n";
+    cout << "Safe sequence: ";
+    for(int i = 0; i < n; i++)
+        cout << "P" << safe[i] << " ";
+    cout << "\nAll processes can complete successfully.\n";
     
     return 0;
 }
