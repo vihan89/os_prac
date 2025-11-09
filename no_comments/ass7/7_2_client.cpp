@@ -14,8 +14,10 @@ int main() {
     int shmid = shmget(key, sizeof(SharedData), 0666);
     SharedData *shm = (SharedData*) shmat(shmid, NULL, 0);
     
-    sem_wait(&shm->sem);
-    cout << "Read: " << shm->msg << endl;
+    while(true) {
+        sem_wait(&shm->sem);
+        cout << "Read: " << shm->msg << endl;
+    }
     
     shmdt(shm);
     return 0;

@@ -16,9 +16,11 @@ int main() {
     
     sem_init(&shm->sem, 1, 0);
     
-    cout << "Write: ";
-    cin.getline(shm->msg, 1000);
-    sem_post(&shm->sem);
+    while(true) {
+        cout << "Write: ";
+        cin.getline(shm->msg, 1000);
+        sem_post(&shm->sem);
+    }
     
     shmdt(shm);
     shmctl(shmid, IPC_RMID, NULL);
