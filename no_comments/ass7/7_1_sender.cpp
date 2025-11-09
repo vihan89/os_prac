@@ -1,27 +1,22 @@
-// Sender - Message Queue
+// Sender - FIFO (Named Pipe)
 #include <iostream>
-#include <sys/ipc.h>
-#include <sys/msg.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <cstring>
 using namespace std;
 
-struct msg {
-    long type;
-    char text[100];
-};
-
 int main() {
-    key_t key = ftok("msgqueue", 65);
-    int msgid = msgget(key, IPC_CREAT | 0666);
-    msg m;
-    int msgType = 1;
+    mkfifo("/tmp/myfifo", 0666);
+    char text[100];
     
     while(true) {
         cout << "Message: ";
-        cin.getline(m.text, 100);
-        m.type = msgType++;
-        msgsnd(msgid, &m, sizeof(m.text), 0);
-        if(strcmp(m.text, "exit") == 0) break;
+        cin.getline(text, 100);
+        int fd = open("/tmp/myfifo", O_WRONLY);
+        write(fd, text, sizeof(text));
+        close(fd);
+        if(strcmp(text, "exit") == 0) break;
     }
     return 0;
 }

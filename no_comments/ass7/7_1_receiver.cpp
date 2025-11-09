@@ -1,30 +1,26 @@
-// Receiver - Convert to uppercase
+// Receiver - Convert to uppercase (FIFO)
 #include <iostream>
-#include <sys/ipc.h>
-#include <sys/msg.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <cstring>
 #include <cctype>
 using namespace std;
 
-struct msg {
-    long type;
-    char text[100];
-};
-
 int main() {
-    key_t key = ftok("msgqueue", 65);
-    int msgid = msgget(key, 0666);
-    msg m;
+    char text[100];
     
     while(true) {
-        msgrcv(msgid, &m, sizeof(m.text), 0, 0);
-        for(int i = 0; m.text[i]; i++)
-            m.text[i] = toupper(m.text[i]);
-        cout << "Message received: " << m.text << "\n";
-        if(strcmp(m.text, "EXIT") == 0) break;
+        int fd = open("/tmp/myfifo", O_RDONLY);
+        read(fd, text, 100);
+        close(fd);
+        for(int i = 0; text[i]; i++)
+            text[i] = toupper(text[i]);
+        cout << "Message received: " << text << "\n";
+        if(strcmp(text, "EXIT") == 0) break;
     }
     
-    msgctl(msgid, IPC_RMID, NULL);
+    unlink("/tmp/myfifo");
     return 0;
 }
 
