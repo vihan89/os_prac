@@ -1,45 +1,46 @@
 // SCAN / LOOK Disk Scheduling - Compare both algorithms
-#include <iostream>
-#include <algorithm>
+#include <bits/stdc++.h>
 using namespace std;
 
 int disk_schedule(int req[], int n, int head, int size, bool scan, string name) {
-    int left[50], right[50], lc = 0, rc = 0;
+    int L[50], R[50], lc = 0, rc = 0;
     
-    // Split into left and right of head
     for(int i = 0; i < n; i++) {
         if(req[i] < head)
-            left[lc++] = req[i];
+            L[lc++] = req[i];
         else
-            right[rc++] = req[i];
+            R[rc++] = req[i];
     }
     
-    sort(left, left + lc);
-    sort(right, right + rc);
+    sort(L, L + lc);
+    sort(R, R + rc);
+    
+    int seq[100], sc = 0;
+    seq[sc++] = head;
+    for(int i = 0; i < rc; i++) {
+        seq[sc] = R[i];
+        sc++;
+    }
+    
+    if(scan) {
+        if(rc > 0 && seq[sc-1] != size-1) {
+            seq[sc] = size-1;
+            sc++;
+        }
+    }
+    
+    for(int i = lc-1; i >= 0; i--) {
+        seq[sc] = L[i];
+        sc++;
+    }
     
     cout << "\n" << name << ":\n";
-    cout << "Sequence: " << head;
-    int total = 0, prev = head;
-    
-    // Go right first (towards 499)
-    for(int i = 0; i < rc; i++) {
-        cout << " -> " << right[i];
-        total += right[i] - prev;
-        prev = right[i];
-    }
-    
-    // SCAN: go to end, LOOK: don't go to end
-    if(scan && (rc == 0 || prev != size-1)) {
-        cout << " -> " << (size-1);
-        total += size-1 - prev;
-        prev = size-1;
-    }
-    
-    // Reverse direction and serve left requests
-    for(int i = lc-1; i >= 0; i--) {
-        cout << " -> " << left[i];
-        total += prev - left[i];
-        prev = left[i];
+    cout << "Sequence: ";
+    int total = 0;
+    for(int i = 0; i < sc; i++) {
+        cout << seq[i];
+        if(i < sc-1) cout << " -> ";
+        if(i) total += abs(seq[i] - seq[i-1]);
     }
     
     cout << "\nTotal Head Movement: " << total;
@@ -56,7 +57,6 @@ int main() {
     cout << "Enter requests: ";
     for(int i = 0; i < n; i++) cin >> req[i];
     
-    // Run both algorithms
     disk_schedule(req, n, head, size, true, "SCAN");
     disk_schedule(req, n, head, size, false, "LOOK");
     
