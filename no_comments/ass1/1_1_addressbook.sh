@@ -6,9 +6,13 @@ touch "$FILE"
 search() {
     echo -n "Search (1)ID (2)Name (3)Phone: "; read ch
     echo -n "Term: "; read term
-    [ "$ch" = 1 ] && grep "^$term:" "$FILE"
-    [ "$ch" = 2 ] && grep -i ":$term:" "$FILE"
-    [ "$ch" = 3 ] && grep ":$term$" "$FILE"
+    if [ "$ch" = 1 ]; then
+        grep "^$term:" "$FILE"
+    elif [ "$ch" = 2 ]; then
+        grep -i ":$term:" "$FILE"
+    elif [ "$ch" = 3 ]; then
+        grep ":$term$" "$FILE"
+    fi
 }
 
 add() {
@@ -28,8 +32,13 @@ remove() {
 while true; do
     echo -e "\n1.Search 2.Add 3.Remove 4.Quit"
     read ch
-    [ "$ch" = 1 ] && search
-    [ "$ch" = 2 ] && add
-    [ "$ch" = 3 ] && remove
-    [ "$ch" = 4 ] && exit
+    if [ "$ch" = 1 ]; then
+        search
+    elif [ "$ch" = 2 ]; then
+        add
+    elif [ "$ch" = 3 ]; then
+        remove
+    elif [ "$ch" = 4 ]; then
+        exit
+    fi
 done

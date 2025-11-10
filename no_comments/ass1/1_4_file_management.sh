@@ -13,7 +13,7 @@ read_file() {
     [ ! -f "$file" ] && echo "Not a file" && return
     [ ! -s "$file" ] && echo "Empty" && return
     cat "$file"
-    echo "Lines: $(wc -l < "$file")"
+    wc -l < "$file"
 }
 
 delete_file() {

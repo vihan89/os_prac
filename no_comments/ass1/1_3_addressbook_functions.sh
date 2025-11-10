@@ -15,6 +15,7 @@ add() {
     echo -n "Phone: "; read phone
     echo -n "Email: "; read email
     echo "$id|$name|$addr|$phone|$email" >> "$FILE"
+    sort -t'|' -k1 -n "$FILE" -o "$FILE"
     echo "Added ID=$id"
 }
 
@@ -25,16 +26,8 @@ remove() {
 }
 
 edit() {
-    echo -n "ID: "; read id
-    grep "^$id|" "$FILE" || { echo "Not found"; return; }
-    echo -n "Name: "; read name
-    echo -n "Address: "; read addr
-    echo -n "Phone: "; read phone
-    echo -n "Email: "; read email
-    sed -i "/^$id|/d" "$FILE"
-    echo "$id|$name|$addr|$phone|$email" >> "$FILE"
-    sort -t'|' -k1 -n "$FILE" -o "$FILE"
-    echo "Updated"
+    remove
+    add
 }
 
 display() {
